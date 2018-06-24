@@ -1,0 +1,231 @@
+# COMP3311 12s1 Exam Q8
+
+(a)
+create table Employees (
+	
+	id integer,
+	name text,
+	position text,
+	primary key (id)
+
+),
+
+create table partTime(
+
+	employee integer,
+	fraction float check ( 0 < fraction < 1),
+	primary key (employee,float),
+	foreign key (employee) reference Employees(id)
+
+),
+
+create table casual(
+
+	employee integer,
+	primary key (employee),
+	foreign key (employee) reference Employees(id)
+
+),
+
+create table workedHours (
+
+	employee integer,
+	start time,
+	end   time,
+	"date" date,
+	primary key (employee,date)
+	foreign key (employee) reference Employee(id),
+	constraint timing check (start < end)
+
+),
+
+(b)
+
+create table Employees (
+	
+	id integer check,
+	name text,
+	position text,
+	partTime boolean,
+	casual boolean,
+	fraction float,
+	primary key (id),
+	constraint DisjointTotal check
+	(casual is not null and partTime is and null fraction is null) or 
+	(casual is null and partTime is not null and fraction is not null)
+),
+
+create table workedHours (
+
+	employee integer check,
+	start time,
+	end   time,
+	"date" date,
+	primary key (employee,date)
+	foreign key (employee) reference Employee(id)
+
+),
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+a/ 
+
+create table Employees (
+
+	id integer,
+	name text,
+	position text,
+
+	primary key(id)
+
+);
+
+create table partTime( 
+
+	employee integer,
+	fraction float check (0 < fraction < 1),
+	primary key (employee)
+	foreign key (employee) reference Employee(id)
+
+);
+
+create table casual(
+
+	employee integer,
+	primary key (employee)
+	foreign key (employee) reference employees(id)
+
+);
+
+create table workedHours(
+
+	"date" date,
+	employee integer,
+	starting time,
+	ending time,
+	primary key (employee,date)
+	foreign key (employee) reference employees(id),
+
+	contraints timeCheck check (starting < ending)
+
+);
+
+
+b/ 
+
+create table Employees (
+
+	id integer,
+	name text,
+	position text,
+	contract text check (contract in ('part-time','casual')) not null,
+	fraction float check (0 < fraction < 1), 
+	primary key(id)
+
+	constraint contractCheck 
+	check (contract = 'part-time' and fraction is not null) or
+	check (contract = 'casual' and fraction is not null)
+
+
+);
+
+create table workedHours(
+
+	"date" date,
+	employee integer,
+	starting time,
+	ending time,
+	primary key (employee,date)
+	foreign key (employee) reference employees(id),
+
+	contraints timeCheck check (starting < ending)
+
+);
+
+
+
+
+
+
+09s1
+
+a/ 
+create table Person (
+
+	id text check (id ~ '[0-9]{5}'),
+	name text,
+	primary key (id)
+
+);
+
+create table Staff (
+
+	id text check (id ~ '[0-9]{5}'),
+	salary float check (salary > 0) not null,
+	primary key (id),
+	foreign key (id) reference person(id)
+
+);
+
+create Student (
+
+	id text check (id ~ '[0-9]{5}'),
+	degree text not null, 
+	primary key (id),
+	foreign key (id) reference person(id)
+
+);
+
+b/ 
+create table Person (
+
+	id text check (id ~ '[0-9]{5}'),
+	name text,
+	student boolean,
+	degree text,
+	staff boolean,
+	salary float check (salary > 0) not null, 
+	primary key (id)
+
+	constraint overlappingStudentStaff check (student is null and degree is null) or 
+	(staff is null and salary is null) or
+	(student is not null and degree is not null) or 
+	(staff is not null and salary is not null)
+
+);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

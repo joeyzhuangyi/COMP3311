@@ -1,0 +1,12 @@
+
+a/
+
+result = Proj[eno,ename](Sel[payrate > 20]Employees)
+
+b/ 
+
+result = proj[ename](employees join [employees.eno = department.eno] department)
+
+
+c/
+

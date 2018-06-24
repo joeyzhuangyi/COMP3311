@@ -1,0 +1,393 @@
+# COMP3311 12s1 Exam Q12
+
+(a)
+
+result = Proj[eno,ename] (Sel[payrate > 20](Employees))
+
+
+(b)
+
+result = Proj[ename] (Department join[eno] Employees)
+
+
+(c)
+
+weekday = proj[day](timesheet)
+empl = proj[eno] (proj[eno,day](timesheet) div weekday)
+result = proj[ename] (empl join[eno] employees)
+
+----- RELATIONAL ALGEBRA PRACTICE
+
+
+	RedPart = Proj[pid] (Sel[color='red'] (Parts))
+
+	SuppyRed = RedPart join[RedPart.pid=Catalog.part] Catalog
+
+	SupplierName = Proj[sname] (SuppyRed join[SuppyRed.supplier = Suppliers.sid] Suppliers)
+
+
+Find the sids of suppliers who supply some red or green part.
+	
+	RGpart = Sel[color = 'red' or color = 'green'](Parts)
+
+	RGSupplier = Proj[supplier] (RGpart join[RGpart.pid = Catalogs.part] Catalogs)
+
+	Sname = Proj[sname] (Suppliers join[Suppliers.sid = RGSupplier.supplier] RGSupplier)
+
+
+Find the sids of suppliers who supply some red part or whose address is 221 Packer Street.
+
+	Rpart = Sel[color = 'red'](Parts)
+
+	RSupplier = Proj[supplier] (Rpart join[Rpart.pid = Catalogs.part] Catalogs)
+
+	ASupplier = Proj[sid] (Sel[address = '221 Packer Street'](Supplier))
+
+	result = RSupplier union ASupplier 
+
+Find the sids of suppliers who supply some red part and some green part.
+
+	Rpart = Sel[color = 'red'](Parts)
+
+	RSupplier = Proj[supplier] (Rpart join[Rpart.pid = Catalogs.part] Catalogs)
+
+	Gpart = Sel[color = 'green'](Parts)
+
+	RSupplier = Proj[supplier] (Rpart join[Rpart.pid = Catalogs.part] Catalogs)
+
+	result = RSupplier intersect RSupplier
+
+Find the sids of suppliers who supply every part.
+
+	everyPart = Proj[pid] Parts
+
+	SupplierPart = Proj[supplier,part]
+
+	supplier = Proj[supplier] (SupplierPart div everyPart)
+
+
+
+
+
+f. Find the sids of suppliers who supply every red or green part.
+
+	Rpart = Rename[part] (Proj[pid] Sel[color = 'red'](Parts))
+
+	SupplierPart = Proj[supplier,part]
+
+	supplier = Proj[supplier] (SupplierPart div Rpart)
+
+
+
+
+
+h. Find the sids of suppliers who supply every red or green part.
+
+	Rpart = Rename[part] (Proj[pid] Sel[color = 'red'](Parts))
+
+	Gpart = Rename[part] (Proj[pid] Sel[color = 'green'](Parts))
+
+	SupplierPart = Proj[supplier,part]
+
+	RSupplier = Proj[supplier] (SupplierPart div Rpart)
+
+	GSupplier = Proj[supplier] (SupplierPart div Gpart)
+
+	Result = RSupplier union GSupplier
+
+i. Find the pids of parts that are supplied by at least two different suppliers.
+	
+	C1 = Catalog
+	C2 = Catalog
+
+	result = Sel[c1.sid != c2.sid] (C1 join[c1.pid = c2.pid] C2)
+
+
+9/
+a.Find the ids of pilots certified for 'Boeing 747' aircraft.
+
+	aid_ = proj[aid] (sel[aname = 'Boeing 747'](Aircraft))
+
+	result = proj[employee] (Certified join[aid_.aid = Certified.aircraft] aid_)
+
+b. Find the names of pilots certified for 'Boeing 747' aircraft.
+
+	Stage1 = Proj[eid](Sel[aname='Boeing 747'](Aircraft Join Certified))
+
+	result = Proj[enam] (Stage1 join[eid] Employee)
+
+c. Find the ids of all aircraft that can be used on non-stop flights from New York to Los Angeles.
+
+	proj[aid] (Aircraft join [cruisingRange > distance] (Sel[from = 'New York' and to = 'LA'](Flight)))
+
+d. Identify the flights that can be piloted by a pilot whose salary is more than $100,000.
+	
+	(Aircraft join [cruisingRange > distance] (Flight)) 
+
+	Stage1 = proj[aircraft] (Certifed join[employee=eid] proj[eid](Sel[salary > 100000](Employee)))
+	Stage2 = proj[cruisingRange] (Stage1 join [aid=aircraft] Aircraft)
+	res = proj[flno](Stage2 join[cruisingRange > distance] Flight)
+
+g. Find the ids of employees who make the highest salary.
+
+	LowerPaid = E1 join[E1.salary < E2.salary] E2
+	highestPaid = Proj[eid](Employees) - Proj[eid](LowerPaid)
+
+
+
+
+
+
+
+R1 = GroupBy[employee,Count[employee]](Certified)
+R2 = Rename[1->employee,2->ncertified](R1)
+R3 = Max[ncertified](R2)
+Answer = Sel[ncertified=R3](R1)
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+	

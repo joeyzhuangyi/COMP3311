@@ -1,0 +1,131 @@
+
+a/
+
+create table Employees(
+
+	id integer,
+	name text not null,
+	position text,
+	primary key (id)
+
+);
+
+create table partTime(
+
+	id integer,
+	fraction float not null,
+	primary key(id),
+	foreign key(id) reference Employees(id)
+
+);
+
+create table casual(
+
+	id integer,
+	primary key(id),
+	foreign key(id) reference Employees(id)
+
+);
+
+create table workedHours(
+
+	id integer,
+	"WorkedDate" date,
+	starting time,
+	ending time,
+	primary key(id,date),
+	foreign key(id) reference casual(id),
+	constraint startendtime check ( starting < ending )
+
+);
+
+
+b/ 
+
+create table Employees(
+
+	id integer,
+	name text not null,
+	position text,
+	etype string check (etype in 'casual','parttime') not null,
+	fraction float,
+	primary key (id),
+	contraint EmployeeType 
+	check (etype = 'parttime' and float is not null) or
+	check (etype = 'casual' and float is null),
+
+);
+
+create table workedHours(
+
+	id integer,
+	"WorkedDate" date,
+	starting time,
+	ending time,
+	primary key(id,date),
+	foreign key(id) reference casual(id),
+	constraint startendtime check ( starting < ending )
+
+);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

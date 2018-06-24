@@ -1,0 +1,29 @@
+
+
+a/ the script aims to print the players name and the number of goals they have scored
+
+	ex:
+
+	ronaldo 10
+	Messi	10
+	Bob		0
+
+b/ 501 dbQuery() is being executed. 
+	
+	the first dbQuery() is called outside the loop
+	then in the loop, dbQuery is called exactly 500 times, as there are 500 players
+
+c/ 
+<?
+
+$q = "select p.name, count(g.id) from players p left join goals g on (p.id = g.scoredby) group by p.id, p.name"
+
+$r = dbQuery($db, mkSQL($q));
+
+while ($t = dbNext($r)) {
+
+	list($name,$goal) = $t;
+
+	printf("%s %d\n", $name, $goal);
+}
+?>

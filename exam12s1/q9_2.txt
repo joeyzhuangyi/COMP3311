@@ -1,0 +1,109 @@
+create trigger AddCourseOnEnrolment
+after insert on Enrolment
+for each row
+execute procedure fixCoursesOnAddEnrolment
+
+
+create or replace function fixCoursesOnAddEnrolment() returns trigger
+as $$
+declare
+	_rec record
+begin
+
+	select nS, nE, avgEval into _rec from courses where id = NEW.course
+
+	_rec.nS := _rec.nS + 1;
+
+	if NEW.stueval != null then
+
+		if  (_rec.nS > 10 && (3*_rec.nE) > _rec.nS) then 
+			_rec.avgEval := (_rec.avgEval * _rec.nE + NEW.stueval) / (_rec.nE + 1)
+		else
+			_rec.avgEval := null;
+		end if
+
+		_rec.nE := _rec.nE + 1;
+
+	end if
+
+	update courses set nS = _rec.nS, nE = _rec.nE, avgEval = _rec.avgEval where id = NEW.course;
+
+end
+
+$$ language 'plpgsql'
+
+
+create trigger AddCourseOnEnrolment
+after insert on Enrolment
+for each row
+execute procedure fixCoursesOnAddEnrolment
+
+
+create or replace function fixCoursesOnDeleteEnrolment() returns trigger
+as $$
+declare
+	_rec record
+begin
+
+	select nS, nE, avgEval into _rec from courses where id = OLD.course
+
+	_rec.nS := _rec.nS - 1;
+
+	if OLD.stueval != null then
+
+		if  (_rec.nS > 10 && (3*_rec.nE) > _rec.nS) then 
+			_rec.avgEval := (_rec.avgEval * _rec.nE - OLD.stueval) / (_rec.nE - 1)
+		else
+			_rec.avgEval := null;
+		end if
+
+		_rec.nE := _rec.nE - 1;
+
+	end if
+
+	update courses set nS = _rec.nS, nE = _rec.nE, avgEval = _rec.avgEval where id = OLD.course;
+
+end
+
+$$ language 'plpgsql'
+
+
+
+create or replace function fixCoursesOnUpdateEnrolment() returns trigger
+as $$
+declare
+	_rec record
+begin
+
+	select nS, nE, avgEval into _rec from courses where id = OLD.course
+
+	if (NEW.stueval != null && OLD.stueval == null) then
+
+		_rec.nE := _rec.nE + 1;
+
+		if  (_rec.nS > 10 && (3*_rec.nE) > _rec.nS) then 
+			_rec.avgEval := (_rec.avgEval * _rec.nE + NEW.stueval) / (_rec.nE + 1)
+		else
+			_rec.avgEval := null;
+		end if
+
+	else if (NEW.stueval <> OLD.stueval) then
+
+		if  (_rec.nS > 10 && (3*_rec.nE) > _rec.nS) then 
+			_rec.avgEval := (_rec.avgEval * _rec.nE - OLD.stueval + NEW.stueval) / (_rec.nE)
+		else
+			_rec.avgEval := null;
+		end if
+
+	end if
+
+	update courses set nS = _rec.nS, nE = _rec.nE, avgEval = _rec.avgEval where id = OLD.course;
+
+end
+
+$$ language 'plpgsql'
+
+
+
+
+

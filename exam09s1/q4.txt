@@ -1,0 +1,5 @@
+a/ 
+
+acct_ = proj[ano](Sel[balance >100000](Account))
+cust_ = proj[customer](acct_ join[ano = account] Depositor)
+result = proj[name](Sel[surburb='Randwick'](cust_ join[customer = cno] Customer))

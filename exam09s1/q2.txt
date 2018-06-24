@@ -1,0 +1,399 @@
+# COMP3311 12s1 Exam Q9
+
+(a)
+create function fixCoursesOnAddCourseEnrolment() returns trigger
+as $$
+declare
+
+begin
+
+	// if insert new enrolment
+	// update nS
+	// if stueval is not null, recalculate stueval, update nE
+
+	if TG_OP = 'insert' then
+
+		if (NEW.stueval != null) then
+			
+			update Courses set avgEval = (avgEval * nE + NEW.stueval)/(nE+1) where id = NEW.course;
+
+			update Courses set nE = nE + 1 where id = NEW.course;
+
+		endif
+		update Courses set nS = nS + 1 where id = NEW.course;
+
+	end if
+	return null;
+end
+
+$$ language 'plpgsql';
+
+(b)
+create function fixCoursesOnDropCourseEnrolment() returns trigger
+as $$
+begin 
+
+	// if delete, decrement nS only
+	// as nE and aveEval remain unchange
+
+	if TG_OP = 'delete' then
+		udpdate Courses set nS = nS - 1 where id = NEW.course;
+	end if
+	return null;
+end
+$$ language 'plpgsql';
+
+(c)
+create function fixCoursesOnModCourseEnrolment() returns trigger
+as $$
+	
+	// if they modify stueval, then modify avgEval
+	// nE, nS unchanged
+
+	if TG_OP = 'update' then
+		if (OLD.stueval != NEW.stueval) then
+			update Courses set avgEval = (avgEval * nE - OLD.stueval + NEW.stueval)/(nE) where id = NEW.course;
+		end if
+	end if
+	return null;
+
+$$ language 'plpgsql';
+
+
+
+
+
+
+
+
+(a)
+create function fixCoursesOnAddCourseEnrolment() returns trigger
+as $$
+declare
+	
+	_nS integer;
+	_nE integer;
+	_avg float;
+
+begin
+	
+	select nS,nE,avgEval into _nS, _nE, _avg 
+	from Courses where id = NEW.course;
+
+	_nS := _nS + 1;
+
+	if (NEW.stueval is not null) then
+
+		if (nS > 10 && (3*nE) > nS) then
+			_avg = (_avg * nE + NEW.stueval)/(_nE+1);
+		else
+			_avg := null;
+		endif 
+
+		_nE := _nE +1;
+
+	end if
+	
+	update Courses set nS = _nS, nE = _nE, avgEval = _avg where id = NEW.course;
+
+	return new;
+	
+end
+
+$$ language 'plpgsql';
+
+(b)
+
+create function fixCoursesOnDropCourseEnrolment() returns trigger
+as $$
+declare
+	
+	_nS integer;
+	_nE integer;
+	_avg float;
+
+begin
+	
+	select nS,nE,avgEval into _nS, _nE, _avg 
+	from Courses where id = OLD.course;
+
+	_nS := _nS - 1;
+
+	if (OLD.stueval is not null) then
+
+		if (nS > 10 && (3*nE) > nS) then
+			_avg = (_avg * nE - OLD.stueval)/(_nE-1);
+		else
+			_avg := null;
+		endif 
+
+		_nE := _nE - 1;
+
+	end if
+	
+	update Courses set nS = _nS, nE = _nE, avgEval = _avg where id = OLD.course;
+
+	return new;
+	
+end
+
+$$ language 'plpgsql';
+
+
+
+
+(c)
+
+create function fixCoursesOnModCourseEnrolment() returns trigger
+as $$
+	
+	// if they modify stueval, then modify avgEval
+	// nE, nS unchanged
+
+	if (OLD.stueval != NEW.stueval) then
+		update Courses set avgEval = (avgEval * nE - OLD.stueval + NEW.stueval)/(nE) where id = NEW.course;
+	end if
+
+	return new;
+
+$$ language 'plpgsql';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+a/ create or replace function fixCoursesOnAddCourseEnrolment() returns trigger
+as $$
+declare
+
+	_nS integer;
+	_nE integer;
+	_avg float;
+
+begin
+
+	select nS, nE, avgEval into _nS, _nE, _avg 
+	where id = NEW.course;
+
+	_nS := _nS + 1;
+
+	if (NEW.stueval != null) then
+
+		
+
+		if ((nS > 10 && (3*nE) > nS)) then
+			_avg = (avg * _nE + NEW.stueval)/(_nE+1);
+		else 
+			_avg = null;
+		end if
+
+		_nE := _nE + 1;
+
+	end if
+
+	update Courses set nS = _nS, nE = _nE, avgEval = _avg where id = NEW.course;
+
+	return NEW;
+
+end
+
+$$ language 'plpgsql';
+
+b/ create or replace trigger DropCourseEnrolmentTrigger() returns trigger
+as $$
+declare
+
+	_nS integer;
+	_nE integer;
+	_avg float;
+
+begin
+	
+	select nS, nE, avgEval into _nS, _nE, _avg 
+	where id = NEW.course;
+
+	_nS := _nS - 1;
+
+	if (OLD.stueval != null) then
+
+
+		if ((nS > 10 && (3*nE) > nS)) then
+			_avg = (avg * _nE - OLD.stueval)/(_nE-1);
+		else 
+			_avg = null;
+		end if
+
+		_nE := _nE - 1;
+
+	end if
+
+	update Courses set nS = _nS, nE = _nE, avgEval = _avg where id = OLD.course;
+
+	return OLD;
+
+end
+
+$$ laguage 'plpgsql';
+
+
+
+c/ create or replace trigger ModCourseEnrolmentTrigger() returns trigger
+as $$
+declare
+
+begin
+
+	if (OLD.stueval == null && NEW.stueval != null) then
+		select nE into _nE from course where id = OLD.course;
+
+		if ((nS > 10 && (3*nE) > nS)) then
+			_avg = (avg * _nE + NEW.stueval)/(_nE+1);
+		else 
+			_avg = null;
+		end if
+		_nE := _nE + 1;
+
+	else if (OLD.stueval <>  NEW.stueval)
+		select nE into _nE from course where id = OLD.course;
+		_avg = (avg * _nE - OLD.stueval + NEW.stueval)/(_nE);
+	end if
+
+	update Course set avgEval = _avg where id = NEW.course;
+
+	return NEW;
+
+end
+$$ language 'plpgsql';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

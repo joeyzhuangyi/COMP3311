@@ -1,0 +1,332 @@
+# COMP3311 12s1 Exam Q10
+
+(a)
+the script is finding how many goals each player score. the output is going to be like:
+
+Ronaldo 45
+Messi 100
+
+
+(b)
+
+dbQuery is going to be call 501 times.
+the first time will get be to get 500 players,
+then for each player, it will be called to get the goals for that player
+
+therefore, dbQuery called = 500 + 1 = 501
+
+(c)
+<?
+require(".../db.php");
+$db = dbConnect("dbname=exam");
+
+$query = "select p.name, count(*) 
+from players p 
+join goals g on (p.id = g.scoredby)
+group by p.id;"
+
+$r = dbQuery($db, mkSQL($query))
+
+while ($t = dbNext($r)) {
+
+	list($name,$goal) = $t;
+	printf("%s %d\n", $name, $goal);
+}
+?>
+
+USE LEFT JOIN, because a player may not score a goal
+
+P->A
+PWS->N
+S->MC
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<?
+require(".../db.php");
+$db = dbConnect("dbname=exam");
+
+$players = "select id,name from Players";
+$count = "select * from Goals where scoredBy=%d";
+
+$r = dbQuery($db, mkSQL($players))
+while ($t = dbNext($r)) {
+	list($id,$name) = $t;
+	$rr = dbQuery($db, mkSQL($count,$id));
+	$ng = 0;
+	while ($tt = dbNext($rr)) { $ng++; }
+	printf("%s %d\n", $name, $ng);
+}
+?>
+
+a/
+the script is attempting to get the players game and the amount of goal they score. For example
+
+Ronaldo 100
+Messi 5
+Pele 0
+
+b/
+
+dbQuery got called 501 times
+
+
+c/
+
+select p.id,p.name, ifnull(count(p.position),0) from players p left join goals g on (p.id = g.scoredby) group by p.id,p.name;
+
+select p.id, p.name, count(g.id)
+from   Players p left outer join Goals g on (p.id = g.scoredBy)
+group  by p.id, p.name;
+
+
+
+
+
+
+
+
+
+09s1 Q3:
+a/ it is attempting to print the student id, name, all the courses the student has done, and the average mark for all of those courses
+
+b/ 10001 dbquery calls
+
+c/ 
+write aggregate method to append all the courses the student has done, and aggregate to calculate the average mark.
+In this way, you can get the information in 1 query
+
+d/ 1 dbquery call
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
